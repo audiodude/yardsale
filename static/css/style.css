@@ -1,0 +1,41 @@
+html, body {
+  height: 100%;
+  background-color: #fff8cb;
+}
+
+a {
+  color: 
+}
+
+#container {
+  background-color: #aaa;
+  -moz-box-shadow: 10px 10px 5px #888;
+  -webkit-box-shadow: 10px 10px 5px #888;
+  box-shadow: 10px 10px 5px #888;
+  height: 450px;
+  margin: 25% auto 0;
+  padding: 25px;
+  position: relative;
+  text-align: center;
+  width: 900px;
+}
+
+.item {
+  float: left;
+  height: 200px;
+  width: 220px;
+}
+
+.thumb {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 200px;
+  width: 200px;
+}
+
+.refresh {
+  bottom: 20px;
+  left: 70%;
+  position: absolute;
+}
