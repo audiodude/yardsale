@@ -1,6 +1,7 @@
 import ebaysdk
 import flask
 import random
+import time
 
 app = flask.Flask(__name__)
 
@@ -19,6 +20,7 @@ TERMS = (
   "Ruby", "Board game", "Vodka", "Skunk", "Carrot", "Dollar sign",
 )
 NUM_ITEMS = 8
+CACHE = {}
 
 @app.route('/')
 def index():
@@ -33,13 +35,18 @@ def index():
 
   items = []
   for term in terms:
-    api.execute('findItemsAdvanced', {
-      'keywords': term, 'paginationInput': {'entriesPerPage': 20}
-    })
-    resp = api.response_dict()
-    print resp['searchResult']
-    print term
-    resp['searchResult']['item']
+    if term in CACHE and CACHE[term]['ttl'] - time.time() >= 0:
+      print 'cached response for %s' % term
+      resp = CACHE[term]['resp']
+    else:
+      print 'fresh response for %s' % term
+      api.execute('findItemsAdvanced', {
+          'keywords': term, 'paginationInput': {'entriesPerPage': 20}
+      })
+      resp = api.response_dict()
+      CACHE[term] = {}
+      CACHE[term]['resp'] = resp
+      CACHE[term]['ttl'] = time.time() + random.randint(350, 450)
     items.append(random.choice(resp['searchResult']['item']))
   return flask.render_template('index.html', items=items)
 
