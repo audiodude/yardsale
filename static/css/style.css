@@ -4,7 +4,18 @@ html, body {
 }
 
 a {
-  color: 
+  color: #2e3a71;
+  text-decoration: none;
+}
+
+a:visited,
+a:active,
+a:hover {
+  color: #2e3a71;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 #container {
@@ -12,7 +23,7 @@ a {
   -moz-box-shadow: 10px 10px 5px #888;
   -webkit-box-shadow: 10px 10px 5px #888;
   box-shadow: 10px 10px 5px #888;
-  height: 450px;
+  height: 525px;
   margin: 25% auto 0;
   padding: 25px;
   position: relative;
@@ -23,6 +34,8 @@ a {
 .item {
   float: left;
   height: 200px;
+  margin-bottom: 50px;
+  position: relative;
   width: 220px;
 }
 
@@ -34,8 +47,15 @@ a {
   width: 200px;
 }
 
+.related-btn {
+  border-radius: 4px;
+  font-size: 16px;
+  margin-top: 8px;
+}
+
 .refresh {
   bottom: 20px;
+  font-size: 18px;
   left: 70%;
   position: absolute;
 }

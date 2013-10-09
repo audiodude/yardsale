@@ -5,14 +5,16 @@
   <link href="/static/css/style.css" rel="stylesheet" type="text/css" media="all">
 </head>
 <body>
+  <h1>{{ term }}</h1>
   <div id="container">
   {% for item in items %}
-    <div class="item">
+    <div class="item" data-term="{{ item['term'] }}">
       <a href="{{ item['viewItemURL']['value'] }}">
         <div class="thumb" style="background-image: url({{ item['galleryPlusPictureURL']['value'] or item['galleryURL']['value'] }})"></div>
       </a>
+      <button class="related-btn" onclick="window.location.href='/?term={{ item['related']|e }}'">&raquo;</button>
     </div>
-    {% if loop.index == 4 %}
+    {% if loop.index == 4 or loop.index == 8 %}
       <div style="clear: both"></div>
     {% endif %}
   {% endfor %}
