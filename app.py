@@ -41,7 +41,8 @@ def index():
     else:
       print 'fresh response for %s' % term
       api.execute('findItemsAdvanced', {
-          'keywords': term, 'paginationInput': {'entriesPerPage': 20}
+          'keywords': term, 'paginationInput': {'entriesPerPage': 25},
+          'affiliate': {'networkId': 9, 'trackingId': '5337405548'}
       })
       resp = api.response_dict()
       CACHE[term] = {}
