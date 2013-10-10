@@ -13,10 +13,12 @@ a {
   -webkit-box-shadow: 10px 10px 5px #888;
   box-shadow: 10px 10px 5px #888;
   height: 450px;
-  margin: 25% auto 0;
+  left: 50%;
+  margin: -250px 0 0 -450px;
   padding: 25px;
-  position: relative;
+  position: absolute;
   text-align: center;
+  top: 50%;
   width: 900px;
 }
 
