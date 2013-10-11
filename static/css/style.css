@@ -4,7 +4,18 @@ html, body {
 }
 
 a {
-  color: 
+  color: #2e3a71;
+  text-decoration: none;
+}
+
+a:visited,
+a:active,
+a:hover {
+  color: #2e3a71;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 #container {
