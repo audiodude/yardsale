@@ -26,7 +26,7 @@ NUM_ITEMS = 8
 CACHE = {}
 
 REGEX_DIRTY_TITLE = re.compile(
-  r'(of|the|and|is|on|at|with|huge|new|by|as|lot|oz|in|big|more|\d+|[+=-_*&^%$#@]) ?', re.I)
+  r'(of|the|and|is|on|at|with|huge|new|by|as|lot|pack|pk|oz|in|big|more|\d+|[+=-_*&^%$#@]) ?', re.I)
 
 def clean_title(title):
   return REGEX_DIRTY_TITLE.sub('', title)
