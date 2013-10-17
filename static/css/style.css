@@ -23,7 +23,7 @@ a:hover {
   -moz-box-shadow: 10px 10px 5px #888;
   -webkit-box-shadow: 10px 10px 5px #888;
   box-shadow: 10px 10px 5px #888;
-  height: 525px;
+  height: 600px;
   margin: 25% auto 0;
   padding: 25px;
   position: relative;
@@ -58,4 +58,10 @@ a:hover {
   font-size: 18px;
   left: 70%;
   position: absolute;
+  width: 225px;
+}
+
+.refresh a {
+  display: inline-block;
+  margin-right: 14px;
 }

@@ -1,6 +1,7 @@
 import ebaysdk
 import flask
 import random
+import re
 import time
 
 app = flask.Flask(__name__)
@@ -24,12 +25,21 @@ TERMS = (
 NUM_ITEMS = 8
 CACHE = {}
 
+REGEX_DIRTY_TITLE = re.compile(r'(of|the|and|is|on|at|with|huge|new|lot|\d++) ?', re.I)
+def clean_title(title):
+  return REGEX_DIRTY_TITLE.sub('', title)
+
+def get_pic(item):
+  return (item.get('galleryPlusPictureURL', {}).get('value') or
+          item['galleryURL']['value'])
+
 @app.route('/')
 def index():
   api = ebaysdk.finding()
 
-  if flask.request.args.get('term'):
-    terms = [flask.request.args.get('term')]*8
+  given_term = flask.request.args.get('term')
+  if given_term:
+    terms = [given_term]*8
   else:
     terms = set()
     term = None
@@ -47,27 +57,39 @@ def index():
     else:
       print 'fresh response for %s' % term
       api.execute('findItemsAdvanced', {
-          'keywords': term, 'paginationInput': {'entriesPerPage': 25}
+          'keywords': term, 'paginationInput': {'entriesPerPage': 25},
+          'affiliate': {'networkId': 9, 'trackingId': '5337405548'},
       })
       resp = api.response_dict()
       CACHE[term] = {}
       CACHE[term]['resp'] = resp
       CACHE[term]['ttl'] = time.time() + random.randint(350, 450)
+    if resp['searchResult']['count']['value'] == '0':
+      continue
 
-    item = random.choice(resp['searchResult']['item'])
-    while (item.get('galleryPlusPictureURL', {}).get('value') in seen_imgs or
-           item['galleryURL']['value'] in seen_imgs):
-      item = random.choice(resp['searchResult']['item'])
-    if 'galleryPlusPictureUrl' in item:
-      seen_imgs.add(item['galleryPlusPictureURL']['value'])
-    seen_imgs.add(item['galleryURL']['value'])
+    resp_item = resp['searchResult']['item']
+    if not isinstance(resp_item, list):
+      item = resp_item
+    else:
+      item = None
+      pic_to_item = dict((get_pic(item), item) for item in resp_item)
+      pics = pic_to_item.keys()
+      print len(seen_imgs), len(resp_item), len(pic_to_item)
+      if len(seen_imgs) >= len(pics):
+        continue
+      while item is None or item_pic in seen_imgs:
+        item_pic = random.choice(pics)
+        item = pic_to_item[item_pic]
+      seen_imgs.add(item_pic)
 
-    title_tokens = item['title']['value'].split(' ')
+    title = clean_title(item['title']['value'])
+    print title
+    title_tokens = title.split(' ')
     rand_idx = random.randint(0, len(title_tokens) - 2)
     item['related'] = '+'.join(title_tokens[rand_idx:rand_idx+2])
     item['term'] = term
     items.append(item)
-  return flask.render_template('index.html', items=items)
+  return flask.render_template('index.html', items=items, given_term=given_term)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(debug=True)

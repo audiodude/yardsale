@@ -5,8 +5,8 @@
   <link href="/static/css/style.css" rel="stylesheet" type="text/css" media="all">
 </head>
 <body>
-  <h1>{{ term }}</h1>
   <div id="container">
+  <h1>{{ given_term if given_term != None }}</h1>
   {% for item in items %}
     <div class="item" data-term="{{ item['term'] }}">
       <a href="{{ item['viewItemURL']['value'] }}">
@@ -17,8 +17,15 @@
     {% if loop.index == 4 or loop.index == 8 %}
       <div style="clear: both"></div>
     {% endif %}
+  {% else %}
+      <h2>hmm, there don&apos;t seem to be any results for that term...</h2>
   {% endfor %}
-    <a class="refresh" href="/">more</a>
+    <div class="refresh">
+      {% if given_term != None %}
+        <a href="/?term={{ given_term }}">more like this</a>
+      {% endif %}
+      <a href="/">start over</a>
+    </div>
   </div>
 </body>
 </html>
