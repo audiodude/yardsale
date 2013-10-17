@@ -26,7 +26,7 @@ NUM_ITEMS = 8
 CACHE = {}
 
 REGEX_DIRTY_TITLE = re.compile(
-  r'(of|the|and|is|on|at|with|huge|new|lot|\d+|/|-|&|\+) ?', re.I)
+  r'(of|the|and|is|on|at|with|huge|new|by|as|lot|\d+|\W+) ?', re.I)
 
 def clean_title(title):
   return REGEX_DIRTY_TITLE.sub('', title)
@@ -86,8 +86,11 @@ def index():
 
     title = clean_title(item['title']['value'])
     title_tokens = title.split(' ')
-    rand_idx = random.randint(0, len(title_tokens) - 2)
-    item['related'] = '+'.join(title_tokens[rand_idx:rand_idx+2])
+    if len(title_tokens) >= 3:
+      rand_idx = random.randint(0, len(title_tokens) - 2)
+      item['related'] = '+'.join(title_tokens[rand_idx:rand_idx+2])
+    else:
+      item['related'] = '+'.join(title_tokens)
     item['term'] = term
     items.append(item)
   return flask.render_template('index.html', items=items, given_term=given_term)
