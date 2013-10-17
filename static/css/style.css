@@ -3,6 +3,10 @@ html, body {
   background-color: #fff8cb;
 }
 
+h1, h2 {
+  color: #2e3a71;
+}
+
 a {
   color: #2e3a71;
   text-decoration: none;
@@ -19,15 +23,17 @@ a:hover {
 }
 
 #container {
-  background-color: #aaa;
+  background-color: #bbb;
   -moz-box-shadow: 10px 10px 5px #888;
   -webkit-box-shadow: 10px 10px 5px #888;
   box-shadow: 10px 10px 5px #888;
   height: 600px;
-  margin: 25% auto 0;
+  left: 50%;
+  margin: -325px 0 0 -475px;
   padding: 25px;
-  position: relative;
+  position: absolute;
   text-align: center;
+  top: 50%;
   width: 900px;
 }
 

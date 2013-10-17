@@ -25,7 +25,9 @@ TERMS = (
 NUM_ITEMS = 8
 CACHE = {}
 
-REGEX_DIRTY_TITLE = re.compile(r'(of|the|and|is|on|at|with|huge|new|lot|\d++) ?', re.I)
+REGEX_DIRTY_TITLE = re.compile(
+  r'(of|the|and|is|on|at|with|huge|new|lot|\d+|/|-|&|\+) ?', re.I)
+
 def clean_title(title):
   return REGEX_DIRTY_TITLE.sub('', title)
 
@@ -39,6 +41,7 @@ def index():
 
   given_term = flask.request.args.get('term')
   if given_term:
+    given_term = given_term.lower()
     terms = [given_term]*8
   else:
     terms = set()
@@ -74,7 +77,6 @@ def index():
       item = None
       pic_to_item = dict((get_pic(item), item) for item in resp_item)
       pics = pic_to_item.keys()
-      print len(seen_imgs), len(resp_item), len(pic_to_item)
       if len(seen_imgs) >= len(pics):
         continue
       while item is None or item_pic in seen_imgs:
@@ -83,7 +85,6 @@ def index():
       seen_imgs.add(item_pic)
 
     title = clean_title(item['title']['value'])
-    print title
     title_tokens = title.split(' ')
     rand_idx = random.randint(0, len(title_tokens) - 2)
     item['related'] = '+'.join(title_tokens[rand_idx:rand_idx+2])

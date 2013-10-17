@@ -21,7 +21,7 @@
       <h2>hmm, there don&apos;t seem to be any results for that term...</h2>
   {% endfor %}
     <div class="refresh">
-      {% if given_term != None %}
+      {% if given_term != None and items|length > 0%}
         <a href="/?term={{ given_term }}">more like this</a>
       {% endif %}
       <a href="/">start over</a>
