@@ -66,7 +66,7 @@ def index():
       resp = api.response_dict()
       CACHE[term] = {}
       CACHE[term]['resp'] = resp
-      CACHE[term]['ttl'] = time.time() + random.randint(350, 450)
+      CACHE[term]['ttl'] = time.time() + 179
     if resp['searchResult']['count']['value'] == '0':
       continue
 
