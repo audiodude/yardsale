@@ -64,10 +64,8 @@ def index():
   items = []
   for term in terms:
     if term in CACHE and CACHE[term]['ttl'] - time.time() >= 0:
-      print 'cached response for %s' % term
       resp = CACHE[term]['resp']
     else:
-      print 'fresh response for %s' % term
       api.execute('findItemsAdvanced', {
           'keywords': term, 'paginationInput': {'entriesPerPage': 25},
           'affiliate': {'networkId': 9, 'trackingId': '5337405548'},
