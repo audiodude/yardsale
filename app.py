@@ -44,6 +44,9 @@ def get_pic(item):
   return (item.get('galleryPlusPictureURL', {}).get('value') or
           item['galleryURL']['value'])
 
+def js_escape(s):
+  return s.replace("'", r"\'")
+
 @app.route('/')
 def index():
   api = ebaysdk.finding()
@@ -95,9 +98,9 @@ def index():
     title_tokens = title.split(' ')
     if len(title_tokens) >= 3:
       rand_idx = random.randint(0, len(title_tokens) - 2)
-      item['related'] = '+'.join(title_tokens[rand_idx:rand_idx+2])
+      item['related'] = js_escape('+'.join(title_tokens[rand_idx:rand_idx+2]))
     else:
-      item['related'] = '+'.join(title_tokens)
+      item['related'] = js_escape('+'.join(title_tokens))
     item['term'] = term
     items.append(item)
   return flask.render_template('index.html', items=items, given_term=given_term)
