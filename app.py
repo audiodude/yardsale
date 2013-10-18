@@ -34,11 +34,14 @@ TITLE_STOP_WORDS = [
 ]
 STOP_WORDS_PART = '|'.join(TITLE_STOP_WORDS)
 
+REGEX_FRAG = r'(%s)' % STOP_WORDS_PART
 REGEX_DIRTY_TITLE = re.compile(
-  r'(%s|\d+%%?|[+=-_*&^$#@]) ?' % STOP_WORDS_PART, re.I)
+  ' %(frag)s |^%(frag)s|%(frag)s$|\w*[+=\-_*&^$#@]+\w*' % {'frag': REGEX_FRAG},
+  re.I)
+REGEX_MULTISPACE = re.compile(' +')
 
 def clean_title(title):
-  return REGEX_DIRTY_TITLE.sub('', title)
+  return REGEX_MULTISPACE.sub(' ', REGEX_DIRTY_TITLE.sub(' ', title))
 
 def get_pic(item):
   return (item.get('galleryPlusPictureURL', {}).get('value') or
