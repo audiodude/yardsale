@@ -25,8 +25,17 @@ TERMS = (
 NUM_ITEMS = 8
 CACHE = {}
 
+TITLE_STOP_WORDS = [
+  'of', 'the', 'and', 'is',
+  'on', 'at', 'with',
+  'huge', 'new', 'by', 'as',
+  'lot', 'pack', 'pk',
+  'nib', 'oz', 'in', 'big', 'more',
+]
+STOP_WORDS_PART = '|'.join(TITLE_STOP_WORDS)
+
 REGEX_DIRTY_TITLE = re.compile(
-  r'(of|the|and|is|on|at|with|huge|new|by|as|lot|pack|pk|oz|in|big|more|\d+|[+=-_*&^%$#@]) ?', re.I)
+  r'(%s|\d+%%?|[+=-_*&^$#@]) ?' % STOP_WORDS_PART, re.I)
 
 def clean_title(title):
   return REGEX_DIRTY_TITLE.sub('', title)
