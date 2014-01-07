@@ -1,0 +1,12 @@
+BeautifulSoup==3.2.1
+Flask==0.10.1
+Jinja2==2.7.1
+MarkupSafe==0.18
+PyYAML==3.10
+Werkzeug==0.9.4
+argparse==1.2.1
+ebaysdk==0.1.10
+gunicorn==18.0
+itsdangerous==0.23
+pycurl==7.19.0.1
+wsgiref==0.1.2
