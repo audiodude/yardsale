@@ -32,16 +32,17 @@ TITLE_STOP_WORDS = [
   'lot', 'pack', 'pk',
   'nib', 'oz', 'in', 'big', 'more',
   'shipping', 'free', 'free shipping', 'size',
-  'for', '32gb', 'd+gb', 'd+','~', '{', 'rare',
-  'gift', 'idea', 'ounce', '(', ')', 'nt',
+  'for', r'\d+gb', r'\d+', 'rare',
+  'gift', 'idea', 'ounce', 'nt',
   
   
 ]
 STOP_WORDS_PART = '|'.join(TITLE_STOP_WORDS)
-
-REGEX_FRAG = r'(%s)' % STOP_WORDS_PART
+STOP_WORD = r'(%s)' % STOP_WORDS_PART
+JUNK_CHARS = r'[\(\)\{\}\[\].+=\-~_*&^$#@!/\\]'
 REGEX_DIRTY_TITLE = re.compile(
-  ' %(frag)s |^%(frag)s|%(frag)s$|\w*[+=\-_*&^$#@]+\w*' % {'frag': REGEX_FRAG},
+  ' %(stop)s |^%(stop)s|%(stop)s$|\w*%(junkchars)s+\w*|'
+  '%(junkchars)s+\w*%(junkchars)s+' % {'stop': STOP_WORD, 'junkchars': JUNK_CHARS},
   re.I)
 REGEX_MULTISPACE = re.compile(' +')
 
