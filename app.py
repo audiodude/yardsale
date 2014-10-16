@@ -20,7 +20,7 @@ TERMS = (
   "Computer", "Charger", "Typewriter", "Ping Pong", "Magnet", "Paperclip",
   "Ruby", "Board game", "Vodka", "Dollar sign", "Zebra", "Campbell", "Coke",
   "Diamond", "Vase", "Neon green", "Glitter", "Sparkles", "Pearls", "Feather",
-  "Hat Pin", "Crown", "Lord of the Rings", "Burger King", "Burrito",
+  "Hat Pin", "Crown", "Lord of the Rings", "Burger King", "Burrito", "Hello Kitty"
 )
 NUM_ITEMS = 8
 CACHE = {}
@@ -31,6 +31,11 @@ TITLE_STOP_WORDS = [
   'huge', 'new', 'by', 'as',
   'lot', 'pack', 'pk',
   'nib', 'oz', 'in', 'big', 'more',
+  'shipping', 'free', 'free shipping', 'size',
+  'for', '32gb', 'd+gb', 'd+','~', '{', 'rare',
+  'gift', 'idea', 'ounce', '(', ')', 'nt',
+  
+  
 ]
 STOP_WORDS_PART = '|'.join(TITLE_STOP_WORDS)
 
