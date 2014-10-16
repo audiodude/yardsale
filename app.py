@@ -1,8 +1,19 @@
-import ebaysdk
-import flask
+import logging
 import random
 import re
 import time
+
+
+import ebaysdk
+import flask
+
+titlelog = logging.getLogger('yardsale.title')
+def configure_logging():
+  titlelog.setLevel(logging.INFO)
+  fh = logging.FileHandler('/var/log/yardsale/title.log')
+  fh.setLevel(logging.DEBUG)
+  titlelog.addHandler(fh)
+configure_logging()
 
 app = flask.Flask(__name__)
 
@@ -29,25 +40,23 @@ TITLE_STOP_WORDS = [
   'of', 'the', 'and', 'is',
   'on', 'at', 'with',
   'huge', 'new', 'by', 'as',
-  'lot', 'pack', 'pk',
+  'lot', 'pack', 'pk', 'sz',
   'nib', 'oz', 'in', 'big', 'more',
   'shipping', 'free', 'free shipping', 'size',
   'for', r'\d+gb', r'\d+', 'rare',
   'gift', 'idea', 'ounce', 'nt',
-  
-  
 ]
 STOP_WORDS_PART = '|'.join(TITLE_STOP_WORDS)
 STOP_WORD = r'(%s)' % STOP_WORDS_PART
 JUNK_CHARS = r'[\(\)\{\}\[\].+=\-~_*&^$#@!/\\]'
 REGEX_DIRTY_TITLE = re.compile(
-  ' %(stop)s |^%(stop)s|%(stop)s$|\w*%(junkchars)s+\w*|'
+  ' %(stop)s | .. |^%(stop)s|%(stop)s$|\w*%(junkchars)s+\w*|'
   '%(junkchars)s+\w*%(junkchars)s+' % {'stop': STOP_WORD, 'junkchars': JUNK_CHARS},
   re.I)
 REGEX_MULTISPACE = re.compile(' +')
-
+REGEX_EDGE_SPACE = re.compile('^ +| +$')
 def clean_title(title):
-  return REGEX_MULTISPACE.sub(' ', REGEX_DIRTY_TITLE.sub(' ', title))
+  return REGEX_EDGE_SPACE.sub('', REGEX_MULTISPACE.sub(' ', REGEX_DIRTY_TITLE.sub(' ', title)))
 
 def get_pic(item):
   return (item.get('galleryPlusPictureURL', {}).get('value') or
@@ -55,6 +64,14 @@ def get_pic(item):
 
 def js_escape(s):
   return s.replace("'", r"\'")
+
+def rep_quote(s):
+  return s.replace('"', r'\"')
+
+def fix_casing(words):
+  """Turns 'STEEL MAGNOLIA' into 'Steel magnolia'"""
+  words[0] = words[0][0].upper() + words[0][1:]
+  words[1] = words[1].lower()
 
 @app.route('/')
 def index():
@@ -103,16 +120,23 @@ def index():
         item = pic_to_item[item_pic]
       seen_imgs.add(item_pic)
 
-    title = clean_title(item['title']['value'])
+    dirty_title = item['title']['value']
+    title = clean_title(dirty_title)
     title_tokens = title.split(' ')
     if len(title_tokens) >= 3:
-      rand_idx = random.randint(0, len(title_tokens) - 2)
-      item['related'] = js_escape('+'.join(title_tokens[rand_idx:rand_idx+2]))
+      rand_idx = random.randint(0, len(title_tokens) - 3)
+      selected_tokens = title_tokens[rand_idx:rand_idx+2]
+      fix_casing(selected_tokens)
     else:
-      item['related'] = js_escape('+'.join(title_tokens))
+      selected_tokens = title_tokens
+
+    titlelog.info('"%s","%s","%s"', rep_quote(dirty_title), rep_quote(title),
+                  rep_quote(' '.join(selected_tokens)))
+
+    item['related'] = js_escape('+'.join(selected_tokens))
     item['term'] = term
     items.append(item)
   return flask.render_template('index.html', items=items, given_term=given_term)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=8000, debug=True)
