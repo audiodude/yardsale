@@ -17,10 +17,10 @@
 <body>
   <div id="container">
   <h1>{{ given_term if given_term != None }}</h1>
-  {% for item in items %}
+  {% for item in display_items %}
     <div class="item" data-term="{{ item['term'] }}">
-      <a href="{{ item['viewItemURL']['value'] }}">
-        <div class="thumb" style="background-image: url({{ item['galleryPlusPictureURL']['value'] or item['galleryURL']['value'] }})"></div>
+      <a href="{{ item['sdk_item'].get('viewItemURL') }}">
+        <div class="thumb" style="background-image: url({{ item['sdk_item'].get('galleryPlusPictureURL') or item['sdk_item'].get('galleryURL') }})"></div>
       </a>
       <button class="related-btn" onclick="window.location.href='/?term={{ item['related']|e }}'">&raquo;</button>
     </div>
@@ -31,7 +31,7 @@
       <h2>hmm, there don&apos;t seem to be any results for that term...</h2>
   {% endfor %}
     <div class="refresh">
-      {% if given_term != None and items|length > 0%}
+      {% if given_term != None and display_items|length > 0%}
         <a href="/?term={{ given_term }}">more like this</a>
       {% endif %}
       <a href="/">start over</a>

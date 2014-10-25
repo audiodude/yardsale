@@ -4,7 +4,7 @@ import re
 import time
 
 
-import ebaysdk
+import ebaysdk.finding
 import flask
 
 titlelog = logging.getLogger('yardsale.title')
@@ -38,7 +38,7 @@ CACHE = {}
 
 TITLE_STOP_WORDS = [
   'of', 'the', 'and', 'is',
-  'on', 'at', 'with',
+  'on', 'at', 'with', 'shop',
   'huge', 'new', 'by', 'as',
   'lot', 'pack', 'pk', 'sz',
   'nib', 'oz', 'in', 'big', 'more',
@@ -48,7 +48,7 @@ TITLE_STOP_WORDS = [
 ]
 STOP_WORDS_PART = '|'.join(TITLE_STOP_WORDS)
 STOP_WORD = r'(%s)' % STOP_WORDS_PART
-JUNK_CHARS = r'[\(\)\{\}\[\].+=\-~_*&^$#@!/\\]'
+JUNK_CHARS = r'[\(\)\{\}\[\].+=\-~_*&^$\'"#@!/\\]'
 REGEX_DIRTY_TITLE = re.compile(
   ' %(stop)s | .. |^%(stop)s|%(stop)s$|\w*%(junkchars)s+\w*|'
   '%(junkchars)s+\w*%(junkchars)s+' % {'stop': STOP_WORD, 'junkchars': JUNK_CHARS},
@@ -59,8 +59,7 @@ def clean_title(title):
   return REGEX_EDGE_SPACE.sub('', REGEX_MULTISPACE.sub(' ', REGEX_DIRTY_TITLE.sub(' ', title)))
 
 def get_pic(item):
-  return (item.get('galleryPlusPictureURL', {}).get('value') or
-          item['galleryURL']['value'])
+  return item.get('galleryPlusPictureURL') or item.get('galleryURL')
 
 def js_escape(s):
   return s.replace("'", r"\'")
@@ -75,7 +74,7 @@ def fix_casing(words):
 
 @app.route('/')
 def index():
-  api = ebaysdk.finding()
+  api = ebaysdk.finding.Connection()
 
   given_term = flask.request.args.get('term')
   if given_term:
@@ -90,23 +89,23 @@ def index():
       terms.add(term)
 
   seen_imgs = set()
-  items = []
+  display_items = []
   for term in terms:
     if term in CACHE and CACHE[term]['ttl'] - time.time() >= 0:
-      resp = CACHE[term]['resp']
+      response = CACHE[term]['response']
     else:
-      api.execute('findItemsAdvanced', {
+      response = api.execute('findItemsAdvanced', {
           'keywords': term, 'paginationInput': {'entriesPerPage': 25},
           'affiliate': {'networkId': 9, 'trackingId': '5337405548'},
       })
-      resp = api.response_dict()
       CACHE[term] = {}
-      CACHE[term]['resp'] = resp
+      CACHE[term]['response'] = response
       CACHE[term]['ttl'] = time.time() + 179
-    if resp['searchResult']['count']['value'] == '0':
+    if len(response.reply.searchResult.item) == 0:
       continue
 
-    resp_item = resp['searchResult']['item']
+    resp = response.dict()
+    resp_item = response.reply.searchResult.item
     if not isinstance(resp_item, list):
       item = resp_item
     else:
@@ -120,7 +119,7 @@ def index():
         item = pic_to_item[item_pic]
       seen_imgs.add(item_pic)
 
-    dirty_title = item['title']['value']
+    dirty_title = item.get('title')
     title = clean_title(dirty_title)
     title_tokens = title.split(' ')
     if len(title_tokens) >= 3:
@@ -133,10 +132,14 @@ def index():
     titlelog.info('"%s","%s","%s"', rep_quote(dirty_title), rep_quote(title),
                   rep_quote(' '.join(selected_tokens)))
 
-    item['related'] = js_escape('+'.join(selected_tokens))
-    item['term'] = term
-    items.append(item)
-  return flask.render_template('index.html', items=items, given_term=given_term)
+    display_item = {
+      'sdk_item': item,
+      'related': js_escape('+'.join(selected_tokens)),
+      'term': term,
+    }
+    display_items.append(display_item)
+  return flask.render_template('index.html', display_items=display_items,
+                               given_term=given_term)
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
