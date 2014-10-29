@@ -1,4 +1,5 @@
 import logging
+import os
 import random
 import re
 import time
@@ -10,7 +11,10 @@ import flask
 titlelog = logging.getLogger('yardsale.title')
 def configure_logging():
   titlelog.setLevel(logging.INFO)
-  fh = logging.FileHandler('/var/log/yardsale/title.log')
+  log_path = '/var/log/yardsale/title.log'
+  if not os.access(log_path, os.W_OK):
+    log_path = './title.log'
+  fh = logging.FileHandler(log_path)
   fh.setLevel(logging.DEBUG)
   titlelog.addHandler(fh)
 configure_logging()
