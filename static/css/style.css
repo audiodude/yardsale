@@ -1,6 +1,6 @@
 html, body {
   height: 100%;
-  background-color: #fff8cb;
+  background-color: #ddd;
 }
 
 h1, h2 {
@@ -23,7 +23,7 @@ a:hover {
 }
 
 #container {
-  background-color: #bbb;
+  background-color: #fff;
   -moz-box-shadow: 10px 10px 5px #888;
   -webkit-box-shadow: 10px 10px 5px #888;
   box-shadow: 10px 10px 5px #888;
