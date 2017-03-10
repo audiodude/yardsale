@@ -53,7 +53,7 @@ TERMS = (
 )
 NUM_ITEMS = 8
 CACHE = pylibmc.Client([os.environ['MEMCACHE_URL']],
-                       behaviors={'verify_keys': 1})
+                       behaviors={'verify_keys': 1, 'tcp_nodelay': 0})
 
 TITLE_STOP_WORDS = [
   'of', 'the', 'and', 'is',
