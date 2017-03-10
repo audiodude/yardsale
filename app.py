@@ -52,7 +52,7 @@ TERMS = (
   "Hat Pin", "Crown", "Lord of the Rings", "Burger King", "Burrito", "Hello Kitty"
 )
 NUM_ITEMS = 8
-CACHE = pylibmc.Client([os.environ['MEMCACHE_URL']],
+CACHE = pylibmc.Client([os.environ['DOKKU_MEMCACHED_YARDMC_PORT']],
                        behaviors={'verify_keys': 1, 'tcp_nodelay': 0})
 
 TITLE_STOP_WORDS = [
