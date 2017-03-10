@@ -1,23 +1,30 @@
+import hashlib
 import logging
 import os
 import random
 import re
 import time
 
-
 import ebaysdk.finding
 import flask
+import pylibmc
+import yaml
 
-titlelog = logging.getLogger('yardsale.title')
-def configure_logging():
-  titlelog.setLevel(logging.INFO)
-  log_path = '/var/log/yardsale/title.log'
-  if not os.access(log_path, os.W_OK):
-    log_path = './title.log'
-  fh = logging.FileHandler(log_path)
-  fh.setLevel(logging.DEBUG)
-  titlelog.addHandler(fh)
-configure_logging()
+def configure_ebay():
+  config = {
+    'name': 'ebay_api_config',
+    'svcs.ebay.com': {
+      'appid': os.environ['EBAY_APP_ID'],
+      'version': '1.0.0',
+    },
+    'open.api.ebay.com': {
+      'appid': os.environ['EBAY_APP_ID'],
+      'version': 671,
+    },
+  }
+  with open('ebay.yaml', 'w') as f:
+    f.write(yaml.dump(config))
+configure_ebay()
 
 app = flask.Flask(__name__)
 
@@ -38,7 +45,8 @@ TERMS = (
   "Hat Pin", "Crown", "Lord of the Rings", "Burger King", "Burrito", "Hello Kitty"
 )
 NUM_ITEMS = 8
-CACHE = {}
+CACHE = pylibmc.Client([os.environ['MEMCACHE_URL']],
+                       behaviors={'verify_keys': 1})
 
 TITLE_STOP_WORDS = [
   'of', 'the', 'and', 'is',
@@ -95,21 +103,18 @@ def index():
   seen_imgs = set()
   display_items = []
   for term in terms:
-    if term in CACHE and CACHE[term]['ttl'] - time.time() >= 0:
-      response = CACHE[term]['response']
-    else:
+    resp = CACHE.get(hashlib.md5(term).hexdigest())
+    if not resp:
       response = api.execute('findItemsAdvanced', {
           'keywords': term, 'paginationInput': {'entriesPerPage': 25},
           'affiliate': {'networkId': 9, 'trackingId': '5337405548'},
       })
-      CACHE[term] = {}
-      CACHE[term]['response'] = response
-      CACHE[term]['ttl'] = time.time() + 179
-    if len(response.reply.searchResult.item) == 0:
+      resp = response.dict()
+      CACHE.set(hashlib.md5(term).hexdigest(), resp, time=180)
+    if resp['paginationOutput']['totalEntries'] == '0':
       continue
 
-    resp = response.dict()
-    resp_item = response.reply.searchResult.item
+    resp_item = resp['searchResult']['item']
     if not isinstance(resp_item, list):
       item = resp_item
     else:
@@ -132,9 +137,6 @@ def index():
       fix_casing(selected_tokens)
     else:
       selected_tokens = title_tokens
-
-    titlelog.info('"%s","%s","%s"', rep_quote(dirty_title), rep_quote(title),
-                  rep_quote(' '.join(selected_tokens)))
 
     display_item = {
       'sdk_item': item,
